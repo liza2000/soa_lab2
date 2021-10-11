@@ -7,9 +7,11 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/heroes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -67,14 +69,25 @@ public class HumanBeingResource extends Application{
     @POST
     public Response doPost(@Context HttpServletRequest request) {
         WebTarget target = getTarget();
-        return target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(request, MediaType.APPLICATION_JSON));
+        try {
+            String requestData = request.getReader().lines().collect(Collectors.joining());
+            return target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(requestData, MediaType.APPLICATION_JSON));
+        }catch (IOException e){
+            return Response.serverError().build();
+        }
+
     }
 
     @PUT
     @Path("/{id}")
     public Response doPut(@PathParam("id") Long id, @Context HttpServletRequest request) {
         WebTarget target = getTarget();
-        return target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(request, MediaType.APPLICATION_JSON));
+        try {
+            String requestData = request.getReader().lines().collect(Collectors.joining());
+            return target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(requestData, MediaType.APPLICATION_JSON));
+        } catch (IOException e) {
+            return Response.serverError().build();
+        }
     }
 
     @DELETE
