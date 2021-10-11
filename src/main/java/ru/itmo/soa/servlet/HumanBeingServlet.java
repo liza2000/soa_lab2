@@ -12,9 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import javax.xml.bind.ValidationException;
+import java.net.URI;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/heroes")
@@ -47,16 +51,15 @@ public class HumanBeingServlet extends Application{
 
     @GET
     public Response get(@Context UriInfo ui) {
+       WebTarget target = getTarget();
         MultivaluedMap<String, String> map = ui.getQueryParameters();
-        try {
-            HumanBeingRequestParams filterParams = getFilterParams(map);
-             HumanBeingDao.PaginationResult humans = service.getAllHumans(filterParams);
-            return Response.ok(gson.toJson(humans)).build();
-        } catch (NumberFormatException  e) {
-            return Response.status(400 ).entity("Incorrect number " + e.getMessage()).build();
-        }catch ( ParseException e) {
-            return Response.status(400).entity( e.getMessage()).build();
-        }
+        List<String> keys = new ArrayList<>();
+        for (String key: map.keySet())
+            if (!keys.contains(key)) {
+                keys.add(key);
+                target.queryParam(key, map.get(key));
+            }
+      return target.request().accept(MediaType.APPLICATION_JSON).get();
     }
 
 
@@ -145,5 +148,11 @@ public class HumanBeingServlet extends Application{
             else return Response.ok(gson.toJson("Deleted " + count + " humans")).build();
         }
         return Response.status(400).entity("Incorrect parameter " + MINUTES_OF_WAITING_PARAM).build();
+    }
+
+    private WebTarget getTarget(){
+        URI uri = UriBuilder.fromUri("").build();
+        Client client = ClientBuilder.newClient();
+        return client.target(uri).path("human-being");
     }
 }
