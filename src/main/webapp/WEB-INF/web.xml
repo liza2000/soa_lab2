@@ -3,14 +3,4 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-  <display-name>Archetype Created Web Application</display-name>
-  <servlet>
-    <servlet-name>myApplication</servlet-name>
-    <servlet-class>ru.itmo.soa.servlet.HumanBeingServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>myApplication</servlet-name>
-    <url-pattern>/human-being/*</url-pattern>
-  </servlet-mapping>
 </web-app>
