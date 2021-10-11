@@ -67,27 +67,27 @@ public class HumanBeingResource extends Application{
 
 
     @POST
-    public Response doPost(@Context HttpServletRequest request) {
+    public Response doPost(String data) {
         WebTarget target = getTarget();
-        try {
-            String requestData = request.getReader().lines().collect(Collectors.joining());
-            return target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(requestData, MediaType.APPLICATION_JSON));
-        }catch (IOException e){
-            return Response.serverError().build();
-        }
+//        try {
+//            String requestData = request.getReader().lines().collect(Collectors.joining());
+            return target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(data, MediaType.APPLICATION_JSON));
+//        }catch (IOException e){
+//            return Response.serverError().build();
+//        }
 
     }
 
     @PUT
     @Path("/{id}")
-    public Response doPut(@PathParam("id") Long id, @Context HttpServletRequest request) {
+    public Response doPut(@PathParam("id") Long id, String data) {
         WebTarget target = getTarget();
-        try {
-            String requestData = request.getReader().lines().collect(Collectors.joining());
-            return target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(requestData, MediaType.APPLICATION_JSON));
-        } catch (IOException e) {
-            return Response.serverError().build();
-        }
+//        try {
+//            String requestData = request.getReader().lines().collect(Collectors.joining());
+            return target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(data, MediaType.APPLICATION_JSON));
+//        } catch (IOException e) {
+//            return Response.serverError().build();
+//        }
     }
 
     @DELETE
