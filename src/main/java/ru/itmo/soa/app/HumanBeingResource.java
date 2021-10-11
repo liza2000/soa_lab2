@@ -28,10 +28,6 @@ public class HumanBeingResource extends Application{
     private static final String WEAPON_TYPE_PARAM = "weapon-type";
 
 
-    private HumanBeingRequestParams getFilterParams(MultivaluedMap<String, String> map) {
-        return new HumanBeingRequestParams(map);
-    }
-
     @GET
     public Response get(@Context UriInfo ui) {
         WebTarget target = getTarget();
