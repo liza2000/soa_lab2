@@ -1,5 +1,8 @@
 package ru.itmo.soa.app;
 
+import lombok.SneakyThrows;
+
+import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
@@ -11,6 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/heroes")
@@ -30,16 +34,15 @@ public class HumanBeingResource extends Application{
     private static final String WEAPON_TYPE_PARAM = "weapon-type";
 
 
+    @SneakyThrows
     @GET
     public Response get(@Context UriInfo ui) {
         WebTarget target = getTarget();
-        MultivaluedMap<String, String> map = ui.getQueryParameters();
-        List<String> keys = new ArrayList<>();
-        for (String key: map.keySet())
-            if (!keys.contains(key)) {
-                keys.add(key);
-                target.queryParam(key, map.get(key));
-            }
+        MultivaluedMap<String, String> map = ui.getQueryParameters(true);
+        for (String key: map.keySet()) {
+            target = target.queryParam(key, map.get(key).toArray());
+        }
+        System.out.println(target.queryParam(WEAPON_TYPE_PARAM, "123").getUri().toURL().toString());
         return target.request().accept(MediaType.APPLICATION_JSON).get();
     }
 
@@ -103,8 +106,11 @@ public class HumanBeingResource extends Application{
         return target.queryParam(MINUTES_OF_WAITING_PARAM, minutesOfWaiting).request().accept(MediaType.APPLICATION_JSON).delete();
     }
 
+    @SneakyThrows
     private WebTarget getTarget(){
-        URI uri = UriBuilder.fromUri("").build();
+        InitialContext cont = new InitialContext();
+        String s = (String) cont.lookup("java:/service2_uri");
+        URI uri = UriBuilder.fromUri(s).build();
         Client client = ClientBuilder.newClient();
         return client.target(uri).path("api").path("human-being");
     }
