@@ -70,6 +70,7 @@ public class HeroesResource {
                 }
                 String output = response.readEntity(String.class);
                 String update = output.replaceFirst("\"impactSpeed\":[0-9.]+,", "\"impactSpeed\":-500.0,");
+                getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(update, MediaType.APPLICATION_JSON));
             }
         }
         return Response.ok().build();
