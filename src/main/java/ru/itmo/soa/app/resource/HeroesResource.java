@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.entity.HumanBeing;
 import ru.itmo.soa.app.entity.Team;
+import ru.itmo.soa.app.entity.data.HumanData;
 import ru.itmo.soa.app.service.TeamService;
 import javax.naming.InitialContext;
 import javax.ws.rs.*;
@@ -42,7 +43,11 @@ public class HeroesResource {
     @GET
     @Path("/search/{real-hero-only}")
     public Response findHeroes(@PathParam("real-hero-only") boolean realHero) {
-        return getTarget().queryParam(REAL_HERO_PARAM, realHero).request().accept(MediaType.APPLICATION_JSON).get();
+        if (realHero) {
+            return getTarget().queryParam(REAL_HERO_PARAM, true).request().accept(MediaType.APPLICATION_JSON).get();
+        } else {
+            return getTarget().request().accept(MediaType.APPLICATION_JSON).get();
+        }
     }
 
     @GET
@@ -68,9 +73,9 @@ public class HeroesResource {
                 if (response.getStatus() != 200) {
                     return Response.status(500).build();
                 }
-                String output = response.readEntity(String.class);
-                String update = output.replaceFirst("\"impactSpeed\":[0-9.]+,", "\"impactSpeed\":-500.0,");
-                getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(update, MediaType.APPLICATION_JSON));
+                HumanData data = response.readEntity(HumanData.class);
+                data.setImpactSpeed(-500.0f);
+                getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(gson.toJson(data), MediaType.APPLICATION_JSON));
             }
         }
         return Response.ok().build();
