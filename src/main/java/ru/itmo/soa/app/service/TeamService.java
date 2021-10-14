@@ -1,11 +1,10 @@
 package ru.itmo.soa.app.service;
 
 import ru.itmo.soa.app.dao.TeamDao;
-import ru.itmo.soa.app.data.TeamHumanRequest;
 import ru.itmo.soa.app.entity.HumanBeing;
 import ru.itmo.soa.app.entity.Team;
 
-import javax.ws.rs.core.Response;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,43 +19,59 @@ public class TeamService {
         return teamDao.getTeams();
     }
 
-    public Optional<Team> getTeam(long id) {
-        return teamDao.getTeam(id);
+    public Team getTeam(long id) {
+        Optional<Team> team = teamDao.getTeam(id);
+        if (team.isPresent()) {
+            return team.get();
+        }
+        throw new EntityNotFoundException(String.format("Team with id %d wasn't found", id));
     }
 
     public Team createTeam(Team team) {
         return teamDao.createTeam(team);
     }
 
-    public boolean addHumanToTeam(Long teamId, Long humanId) {
+    public void addHumanToTeam(Long teamId, Long humanId) {
         Optional<Team> team = teamDao.getTeam(teamId);
         Optional<HumanBeing> humanBeing = teamDao.getHuman(humanId);
         if (team.isPresent() && humanBeing.isPresent()) {
             Team teamValue = team.get();
             teamValue.getHumans().add(humanBeing.get());
             teamDao.updateTeam(teamValue);
-            return true;
+        } else {
+            if (team.isPresent()) {
+                throw new EntityNotFoundException(String.format("Human with id %d wasn't found", humanId));
+            }
+            throw new EntityNotFoundException(String.format("Team with id %d wasn't found", teamId));
         }
-        return false;
     }
 
-    public Response removeHumanFromTeam(Long teamId, Long humanId) {
+    public void removeHumanFromTeam(Long teamId, Long humanId) {
         Optional<Team> team = teamDao.getTeam(teamId);
         Optional<HumanBeing> humanBeing = teamDao.getHuman(humanId);
         if (team.isPresent() && humanBeing.isPresent()) {
             Team teamValue = team.get();
             teamValue.getHumans().remove(humanBeing.get());
             teamDao.updateTeam(teamValue);
-            return Response.ok().build();
+        } else {
+            if (team.isPresent()) {
+                throw new EntityNotFoundException(String.format("Human with id %d wasn't found", humanId));
+            }
+            throw new EntityNotFoundException(String.format("Team with id %d wasn't found", teamId));
         }
-        return Response.status(404).build();
     }
 
-    public Response deleteTeam(long id) {
-        if (teamDao.deleteTeam(id)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(404).build();
+    public List<Team> teamsByHuman(long id) {
+        Optional<HumanBeing> humanBeing = teamDao.getHuman(id);
+        if (!humanBeing.isPresent()) {
+            throw new EntityNotFoundException(String.format("Human with id %d wasn't found", id));
+        }
+        return teamDao.findTeamsByHumanId(id);
+    }
+
+    public void deleteTeam(long id) {
+        if (!teamDao.deleteTeam(id)) {
+            throw new EntityNotFoundException(String.format("Team with id %d wasn't found", id));
         }
     }
 }

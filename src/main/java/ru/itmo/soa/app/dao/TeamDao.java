@@ -2,10 +2,12 @@ package ru.itmo.soa.app.dao;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import ru.itmo.soa.app.datasource.HibernateDatasource;
 import ru.itmo.soa.app.entity.HumanBeing;
 import ru.itmo.soa.app.entity.Team;
 
+import javax.persistence.criteria.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,6 +59,31 @@ public class TeamDao {
             e.printStackTrace();
         }
         return Optional.ofNullable(humanBeing);
+    }
+
+    public List<Team> findTeamsByHumanId(long id) {
+        Transaction transaction = null;
+        List<Team> teams = null;
+        try (Session session = HibernateDatasource.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Team> cr = cb.createQuery(Team.class);
+            Root<Team> root = cr.from(Team.class);
+            Join<Team, HumanBeing> join = root.join("humans", JoinType.LEFT);
+
+            CriteriaQuery<Team> query = cr.select(root).where(cb.equal(join.get("id"), id));
+            Query<Team> typedQuery = session.createQuery(query);
+
+            teams = typedQuery.getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+        return teams;
     }
 
     public Team createTeam(Team team) {

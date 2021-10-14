@@ -56,51 +56,53 @@ public class HeroesResource {
         return Response.ok(gson.toJson(teamService.getTeam(id))).build();
     }
 
+    @GET
+    @Path("/teams-by-human/{id}")
+    public Response getTeamByHuman(@PathParam("id") Long id) {
+        return Response.ok(gson.toJson(teamService.teamsByHuman(id))).build();
+    }
+
     @POST
     public Response createTeam(String data) {
-        teamService.createTeam(gson.fromJson(data, Team.class));
-        return Response.ok().build();
+        Team saved = teamService.createTeam(gson.fromJson(data, Team.class));
+        return Response.ok(gson.toJson(saved)).build();
     }
 
     @POST
     @Path("/team/{team-id}/make-depressive")
     public Response makeDepressive(@PathParam("team-id") Long id) {
-        Optional<Team> team = teamService.getTeam(id);
-        if (team.isPresent()) {
-            Team value = team.get();
-            for (HumanBeing human : value.getHumans()) {
-                Response response = getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).get();
-                if (response.getStatus() != 200) {
-                    return Response.status(500).build();
-                }
-                HumanData data = response.readEntity(HumanData.class);
-                data.setImpactSpeed(-500.0f);
-                getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(gson.toJson(data), MediaType.APPLICATION_JSON));
+        Team team = teamService.getTeam(id);
+        for (HumanBeing human : team.getHumans()) {
+            Response response = getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).get();
+            if (response.getStatus() != 200) {
+                return Response.status(500).build();
             }
+            HumanData data = response.readEntity(HumanData.class);
+            data.setImpactSpeed(-500.0f);
+            getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(gson.toJson(data), MediaType.APPLICATION_JSON));
         }
         return Response.ok().build();
     }
 
     @PUT
     @Path("/{id}/{human-id}")
-    public Response addHumanToTeam(@PathParam("id") Long id, @PathParam("human-id") Long humanId) {
-        if (teamService.addHumanToTeam(id, humanId)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(404).build();
-        }
+    public Response addHumanToTeam(@PathParam("id") Long teamId, @PathParam("human-id") Long humanId) {
+        teamService.addHumanToTeam(teamId, humanId);
+        return Response.ok().build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteTeam(@PathParam("id") Long id) {
-        return teamService.deleteTeam(id);
+        teamService.deleteTeam(id);
+        return Response.ok().build();
     }
 
     @DELETE
     @Path("/{id}/{human-id}")
     public Response deleteHumanFromTeam(@PathParam("id") Long id, @PathParam("human-id") Long humanId) {
-        return teamService.removeHumanFromTeam(id, humanId);
+        teamService.removeHumanFromTeam(id, humanId);
+        return Response.ok().build();
     }
 
     @SneakyThrows
