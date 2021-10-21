@@ -6,6 +6,7 @@ import ru.itmo.soa.app.entity.HumanBeing;
 import ru.itmo.soa.app.entity.Team;
 import ru.itmo.soa.app.entity.data.HumanData;
 import ru.itmo.soa.app.service.TeamService;
+
 import javax.naming.InitialContext;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class HeroesResource {
 
     private static final String REAL_HERO_PARAM = "real-hero";
+    private static final String LIMIT_PARAM = "limit";
 
     private final Gson gson = new Gson();
     private final TeamService teamService;
@@ -44,7 +46,9 @@ public class HeroesResource {
     @Path("/search/{real-hero-only}")
     public Response findHeroes(@PathParam("real-hero-only") boolean realHero) {
         if (realHero) {
-            return getTarget().queryParam(REAL_HERO_PARAM, true).request().accept(MediaType.APPLICATION_JSON).get();
+            return getTarget()
+                    .queryParam(REAL_HERO_PARAM, true)
+                    .request().accept(MediaType.APPLICATION_JSON).get();
         } else {
             return getTarget().request().accept(MediaType.APPLICATION_JSON).get();
         }
@@ -111,6 +115,6 @@ public class HeroesResource {
         String s = (String) cont.lookup("java:/service2_uri"); // service 2 - payara server
         URI uri = UriBuilder.fromUri(s).build();
         Client client = ClientBuilder.newClient();
-        return client.target(uri).path("api").path("human-being");
+        return client.target(uri).path("api").path("human-being").queryParam(LIMIT_PARAM, Integer.MAX_VALUE);
     }
 }
