@@ -122,6 +122,8 @@ public class TeamDao {
             transaction = session.beginTransaction();
             Team team = session.find(Team.class, id);
             if (team != null) {
+                team.getHumans().clear();
+                session.save(team);
                 session.delete(team);
                 session.flush();
                 successful = true;

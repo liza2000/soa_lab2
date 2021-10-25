@@ -53,6 +53,11 @@ public class HeroesResource {
             return getTarget().request().accept(MediaType.APPLICATION_JSON).get();
         }
     }
+    @GET
+    @Path("/search")
+    public Response findHeroesNoParam() {
+        return getTarget().request().accept(MediaType.APPLICATION_JSON).get();
+    }
 
     @GET
     @Path("/{id}")
