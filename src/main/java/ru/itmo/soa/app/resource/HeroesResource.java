@@ -1,13 +1,19 @@
 package ru.itmo.soa.app.resource;
 
 import com.google.gson.Gson;
+import com.orbitz.consul.AgentClient;
+import com.orbitz.consul.Consul;
+import com.orbitz.consul.HealthClient;
+import com.orbitz.consul.NotRegisteredException;
+import com.orbitz.consul.model.agent.ImmutableRegistration;
+import com.orbitz.consul.model.agent.Registration;
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.entity.HumanBeing;
 import ru.itmo.soa.app.entity.Team;
 import ru.itmo.soa.app.entity.data.HumanData;
+import ru.itmo.soa.app.sd.ServiceDiscovery;
 import ru.itmo.soa.app.service.TeamService;
 
-import javax.naming.InitialContext;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -17,8 +23,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Path("/heroes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -53,6 +59,7 @@ public class HeroesResource {
             return getTarget().request().accept(MediaType.APPLICATION_JSON).get();
         }
     }
+
     @GET
     @Path("/search")
     public Response findHeroesNoParam() {
@@ -116,9 +123,8 @@ public class HeroesResource {
 
     @SneakyThrows
     private WebTarget getTarget() {
-        InitialContext cont = new InitialContext();
-        String s = (String) cont.lookup("java:/service2_uri"); // service 2 - payara server
-        URI uri = UriBuilder.fromUri(s).build();
+        // service 2 - payara server
+        URI uri = UriBuilder.fromUri(ServiceDiscovery.getUriFromConsul()).build();
         Client client = ClientBuilder.newClient();
         return client.target(uri).path("api").path("human-being").queryParam(LIMIT_PARAM, Integer.MAX_VALUE);
     }

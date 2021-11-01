@@ -2,6 +2,7 @@ package ru.itmo.soa.app.resource;
 
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.entity.Team;
+import ru.itmo.soa.app.sd.ServiceDiscovery;
 
 import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletRequest;
@@ -104,9 +105,7 @@ public class HumanBeingResource {
 
     @SneakyThrows
     private WebTarget getTarget() {
-        InitialContext cont = new InitialContext();
-        String s = (String) cont.lookup("java:/service2_uri"); // service 2 - payara server
-        URI uri = UriBuilder.fromUri(s).build();
+        URI uri = UriBuilder.fromUri(ServiceDiscovery.getUriFromConsul()).build();
         Client client = ClientBuilder.newClient();
         return client.target(uri).path("api").path("human-being");
     }
