@@ -1,14 +1,14 @@
-package ru.itmo.soa.app.service;
+package ru.itmo.soa.service;
 
-import ru.itmo.soa.app.dao.TeamDao;
-import ru.itmo.soa.app.entity.HumanBeing;
-import ru.itmo.soa.app.entity.Team;
+import ru.itmo.soa.dao.TeamDao;
+import ru.itmo.soa.entity.HumanBeing;
+import ru.itmo.soa.entity.Team;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
-public class TeamService {
+public class TeamService implements RemoteEJBInterface{
     private final TeamDao teamDao;
 
     public TeamService() {

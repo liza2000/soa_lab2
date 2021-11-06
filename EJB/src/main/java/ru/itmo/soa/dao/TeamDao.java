@@ -1,11 +1,11 @@
-package ru.itmo.soa.app.dao;
+package ru.itmo.soa.dao;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import ru.itmo.soa.app.datasource.HibernateDatasource;
-import ru.itmo.soa.app.entity.HumanBeing;
-import ru.itmo.soa.app.entity.Team;
+import ru.itmo.soa.datasource.HibernateDatasource;
+import ru.itmo.soa.entity.HumanBeing;
+import ru.itmo.soa.entity.Team;
 
 import javax.persistence.criteria.*;
 import java.util.List;

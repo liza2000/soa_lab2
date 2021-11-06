@@ -1,10 +1,9 @@
 package ru.itmo.soa.app.resource;
 
 import lombok.SneakyThrows;
-import ru.itmo.soa.app.entity.Team;
 import ru.itmo.soa.app.sd.ServiceDiscovery;
 
-import javax.naming.InitialContext;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
@@ -14,8 +13,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/human-being")

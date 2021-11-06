@@ -1,12 +1,12 @@
-package ru.itmo.soa.app.datasource;
+package ru.itmo.soa.datasource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
-import ru.itmo.soa.app.entity.HumanBeing;
-import ru.itmo.soa.app.entity.Team;
+import ru.itmo.soa.entity.HumanBeing;
+import ru.itmo.soa.entity.Team;
 
 import java.util.Properties;
 
