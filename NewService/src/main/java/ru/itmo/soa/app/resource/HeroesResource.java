@@ -8,8 +8,10 @@ import ru.itmo.soa.entity.Team;
 import ru.itmo.soa.entity.data.HumanData;
 import ru.itmo.soa.service.TeamServiceI;
 
+import javax.ejb.EJBException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -60,29 +62,46 @@ public class HeroesResource {
     @GET
     @Path("/{id}")
     public Response getTeam(@PathParam("id") Long id) {
-        return Response.ok(gson.toJson(teamService.getTeam(id))).build();
+        try {
+            return Response.ok(gson.toJson(teamService.getTeam(id))).build();
+        } catch (EntityNotFoundException e) {
+            return Response.status(404).entity(e.getMessage()).build();
+        }
     }
 
     @GET
     @Path("/teams-by-human/{id}")
     public Response getTeamByHuman(@PathParam("id") Long id) {
-        return Response.ok(gson.toJson(teamService.teamsByHuman(id))).build();
+        try {
+            return Response.ok(gson.toJson(teamService.teamsByHuman(id))).build();
+        } catch (EntityNotFoundException e) {
+            return Response.status(404).entity(e.getMessage()).build();
+        }
     }
 
     @POST
     public Response createTeam(String data) {
-        Team saved = teamService.createTeam(gson.fromJson(data, Team.class));
-        return Response.ok(gson.toJson(saved)).build();
+        try {
+            Team saved = teamService.createTeam(gson.fromJson(data, Team.class));
+            return Response.ok(gson.toJson(saved)).build();
+        } catch (Exception e) {
+            return Response.serverError().build();
+        }
     }
 
     @POST
     @Path("/team/{team-id}/make-depressive")
     public Response makeDepressive(@PathParam("team-id") Long id) {
-        Team team = teamService.getTeam(id);
+        Team team;
+        try {
+            team = teamService.getTeam(id);
+         } catch (EntityNotFoundException e) {
+        return Response.status(404).entity(e.getMessage()).build();
+        }
         for (HumanBeing human : team.getHumans()) {
             Response response = getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).get();
             if (response.getStatus() != 200) {
-                return Response.status(500).build();
+                return Response.serverError().build();
             }
             HumanData data = (HumanData) response.getEntity();
             data.setImpactSpeed(-500.0f);
@@ -94,22 +113,34 @@ public class HeroesResource {
     @PUT
     @Path("/{id}/{human-id}")
     public Response addHumanToTeam(@PathParam("id") Long teamId, @PathParam("human-id") Long humanId) {
-        teamService.addHumanToTeam(teamId, humanId);
-        return Response.ok().build();
+        try {
+            teamService.addHumanToTeam(teamId, humanId);
+            return Response.ok().build();
+        } catch (EntityNotFoundException e) {
+            return Response.status(404).entity(e.getMessage()).build();
+        }
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteTeam(@PathParam("id") Long id) {
-        teamService.deleteTeam(id);
-        return Response.ok().build();
+        try {
+            teamService.deleteTeam(id);
+            return Response.ok().build();
+        } catch (EntityNotFoundException e) {
+            return Response.status(404).entity(e.getMessage()).build();
+        }
     }
 
     @DELETE
     @Path("/{id}/{human-id}")
     public Response deleteHumanFromTeam(@PathParam("id") Long id, @PathParam("human-id") Long humanId) {
-        teamService.removeHumanFromTeam(id, humanId);
-        return Response.ok().build();
+        try {
+            teamService.removeHumanFromTeam(id, humanId);
+            return Response.ok().build();
+        } catch (EntityNotFoundException e) {
+            return Response.status(404).entity(e.getMessage()).build();
+        }
     }
 
     @SneakyThrows
@@ -147,7 +178,42 @@ public class HeroesResource {
             return (TeamServiceI) context.lookup("ejb:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName);
         } catch (NamingException e) {
             System.out.println("не получилось (");
-            return null;
+            return new TeamServiceI() {
+                @Override
+                public List<Team> getTeams() {
+                    throw new EJBException("ejb is not available");
+                }
+
+                @Override
+                public Team getTeam(long id) {
+                    throw new EJBException("ejb is not available");
+                }
+
+                @Override
+                public Team createTeam(Team team) {
+                    throw new EJBException("ejb is not available");
+                }
+
+                @Override
+                public void addHumanToTeam(Long teamId, Long humanId) {
+                    throw new EJBException("ejb is not available");
+                }
+
+                @Override
+                public void removeHumanFromTeam(Long teamId, Long humanId) {
+                    throw new EJBException("ejb is not available");
+                }
+
+                @Override
+                public List<Team> teamsByHuman(long id) {
+                    throw new EJBException("ejb is not available");
+                }
+
+                @Override
+                public void deleteTeam(long id) {
+                    throw new EJBException("ejb is not available");
+                }
+            };
         }
     }
 }
