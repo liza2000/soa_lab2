@@ -1,6 +1,5 @@
 package ru.itmo.soa.app.resource;
 
-import com.google.common.base.Supplier;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.sd.ServiceDiscovery;
@@ -12,7 +11,6 @@ import ru.itmo.soa.service.TeamServiceI;
 import javax.ejb.EJBException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -63,19 +61,19 @@ public class HeroesResource {
     @GET
     @Path("/{id}")
     public Response getTeam(@PathParam("id") Long id) {
-            return Response.ok(gson.toJson(teamService.getTeam(id))).build();
+        return Response.ok(gson.toJson(teamService.getTeam(id))).build();
     }
 
     @GET
     @Path("/teams-by-human/{id}")
     public Response getTeamByHuman(@PathParam("id") Long id) {
-            return Response.ok(gson.toJson(teamService.teamsByHuman(id))).build();
+        return Response.ok(gson.toJson(teamService.teamsByHuman(id))).build();
     }
 
     @POST
     public Response createTeam(String data) {
-            Team saved = teamService.createTeam(gson.fromJson(data, Team.class));
-            return Response.ok(gson.toJson(saved)).build();
+        Team saved = teamService.createTeam(gson.fromJson(data, Team.class));
+        return Response.ok(gson.toJson(saved)).build();
     }
 
     @POST
@@ -97,22 +95,22 @@ public class HeroesResource {
     @PUT
     @Path("/{id}/{human-id}")
     public Response addHumanToTeam(@PathParam("id") Long teamId, @PathParam("human-id") Long humanId) {
-            teamService.addHumanToTeam(teamId, humanId);
-            return Response.ok().build();
+        teamService.addHumanToTeam(teamId, humanId);
+        return Response.ok().build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteTeam(@PathParam("id") Long id) {
-            teamService.deleteTeam(id);
-            return Response.ok().build();
+        teamService.deleteTeam(id);
+        return Response.ok().build();
     }
 
     @DELETE
     @Path("/{id}/{human-id}")
     public Response deleteHumanFromTeam(@PathParam("id") Long id, @PathParam("human-id") Long humanId) {
-            teamService.removeHumanFromTeam(id, humanId);
-            return Response.ok().build();
+        teamService.removeHumanFromTeam(id, humanId);
+        return Response.ok().build();
     }
 
     @SneakyThrows

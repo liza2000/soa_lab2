@@ -8,7 +8,7 @@ import javax.ws.rs.ext.Provider;
 import java.text.ParseException;
 
 @Provider
-public class EntityNotFoundMapper
+public class AppExceptionMapper
         implements ExceptionMapper<Exception> {
 
     @Override
