@@ -4,10 +4,15 @@ import ru.itmo.soa.dao.TeamDao;
 import ru.itmo.soa.entity.HumanBeing;
 import ru.itmo.soa.entity.Team;
 
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
+@Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class TeamService implements TeamServiceI {
     private final TeamDao teamDao;
 

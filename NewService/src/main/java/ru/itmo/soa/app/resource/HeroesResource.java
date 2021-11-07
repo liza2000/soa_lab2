@@ -1,5 +1,6 @@
 package ru.itmo.soa.app.resource;
 
+import com.google.common.base.Supplier;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.sd.ServiceDiscovery;
@@ -160,12 +161,12 @@ public class HeroesResource {
             // without the .ear suffix. However, the application name could be overridden in the application.xml of the
             // EJB deployment on the server.
             // Since we haven't deployed the application as a .ear, the app name for us will be an empty string
-            final String appName = "";
+            final String appName = "global";
             // This is the module name of the deployed EJBs on the server. This is typically the jar name of the
             // EJB deployment, without the .jar suffix, but can be overridden via the ejb-jar.xml
             // In this example, we have deployed the EJBs in a jboss-as-ejb-remote-app.jar, so the module name is
             // jboss-as-ejb-remote-app
-            final String moduleName = "soa_ejb2-1";
+            final String moduleName = "NewService";
             // AS7 allows each deployment to have an (optional) distinct name. We haven't specified a distinct name for
             // our EJB deployment, so this is an empty string
             final String distinctName = "";
@@ -175,7 +176,7 @@ public class HeroesResource {
             final String viewClassName = TeamServiceI.class.getName();
             // let's do the lookup
 
-            return (TeamServiceI) context.lookup("ejb:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName);
+            return (TeamServiceI) context.lookup("java:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName);
         } catch (NamingException e) {
             System.out.println("не получилось (");
             return new TeamServiceI() {

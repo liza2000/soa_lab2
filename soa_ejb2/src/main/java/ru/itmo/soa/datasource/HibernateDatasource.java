@@ -8,6 +8,9 @@ import org.hibernate.service.ServiceRegistry;
 import ru.itmo.soa.entity.HumanBeing;
 import ru.itmo.soa.entity.Team;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.transaction.Transactional;
 import java.util.Properties;
 
 public class HibernateDatasource {

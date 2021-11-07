@@ -2,8 +2,10 @@ package ru.itmo.soa.entity.data;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class HumanData {
+public class HumanData implements Serializable {
     private Long id;
     private String name;
     private CoordinatesData coordinates;
