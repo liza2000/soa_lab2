@@ -63,42 +63,25 @@ public class HeroesResource {
     @GET
     @Path("/{id}")
     public Response getTeam(@PathParam("id") Long id) {
-        try {
             return Response.ok(gson.toJson(teamService.getTeam(id))).build();
-        } catch (EntityNotFoundException e) {
-            return Response.status(404).entity(e.getMessage()).build();
-        }
     }
 
     @GET
     @Path("/teams-by-human/{id}")
     public Response getTeamByHuman(@PathParam("id") Long id) {
-        try {
             return Response.ok(gson.toJson(teamService.teamsByHuman(id))).build();
-        } catch (EntityNotFoundException e) {
-            return Response.status(404).entity(e.getMessage()).build();
-        }
     }
 
     @POST
     public Response createTeam(String data) {
-        try {
             Team saved = teamService.createTeam(gson.fromJson(data, Team.class));
             return Response.ok(gson.toJson(saved)).build();
-        } catch (Exception e) {
-            return Response.serverError().build();
-        }
     }
 
     @POST
     @Path("/team/{team-id}/make-depressive")
     public Response makeDepressive(@PathParam("team-id") Long id) {
-        Team team;
-        try {
-            team = teamService.getTeam(id);
-         } catch (EntityNotFoundException e) {
-        return Response.status(404).entity(e.getMessage()).build();
-        }
+        Team team = teamService.getTeam(id);
         for (HumanBeing human : team.getHumans()) {
             Response response = getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).get();
             if (response.getStatus() != 200) {
@@ -114,34 +97,22 @@ public class HeroesResource {
     @PUT
     @Path("/{id}/{human-id}")
     public Response addHumanToTeam(@PathParam("id") Long teamId, @PathParam("human-id") Long humanId) {
-        try {
             teamService.addHumanToTeam(teamId, humanId);
             return Response.ok().build();
-        } catch (EntityNotFoundException e) {
-            return Response.status(404).entity(e.getMessage()).build();
-        }
     }
 
     @DELETE
     @Path("/{id}")
     public Response deleteTeam(@PathParam("id") Long id) {
-        try {
             teamService.deleteTeam(id);
             return Response.ok().build();
-        } catch (EntityNotFoundException e) {
-            return Response.status(404).entity(e.getMessage()).build();
-        }
     }
 
     @DELETE
     @Path("/{id}/{human-id}")
     public Response deleteHumanFromTeam(@PathParam("id") Long id, @PathParam("human-id") Long humanId) {
-        try {
             teamService.removeHumanFromTeam(id, humanId);
             return Response.ok().build();
-        } catch (EntityNotFoundException e) {
-            return Response.status(404).entity(e.getMessage()).build();
-        }
     }
 
     @SneakyThrows
