@@ -8,7 +8,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
-public class TeamService implements RemoteEJBInterface{
+public class TeamService implements TeamServiceI {
     private final TeamDao teamDao;
 
     public TeamService() {

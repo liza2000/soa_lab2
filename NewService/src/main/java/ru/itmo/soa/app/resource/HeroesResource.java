@@ -2,12 +2,11 @@ package ru.itmo.soa.app.resource;
 
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
-import ru.itmo.soa.app.entity.HumanBeing;
-import ru.itmo.soa.app.entity.Team;
-import ru.itmo.soa.app.entity.data.HumanData;
 import ru.itmo.soa.app.sd.ServiceDiscovery;
-import ru.itmo.soa.app.service.RemoteEJBInterface;
-import ru.itmo.soa.service.TeamService;
+import ru.itmo.soa.entity.HumanBeing;
+import ru.itmo.soa.entity.Team;
+import ru.itmo.soa.entity.data.HumanData;
+import ru.itmo.soa.service.TeamServiceI;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -32,15 +31,13 @@ public class HeroesResource {
     private static final String LIMIT_PARAM = "limit";
 
     private final Gson gson = new Gson();
-    private final RemoteEJBInterface teamService = lookupRemoteStatelessBean();
-
+    private final TeamServiceI teamService = lookupRemoteStatelessBean();
 
     @GET
     public Response getAllTeams() {
         List<Team> teams = teamService.getTeams();
         return Response.ok(gson.toJson(teams)).build();
     }
-
 
     @GET
     @Path("/search/{real-hero-only}")
@@ -87,7 +84,7 @@ public class HeroesResource {
             if (response.getStatus() != 200) {
                 return Response.status(500).build();
             }
-            HumanData data = response.readEntity(HumanData.class);
+            HumanData data = (HumanData) response.getEntity();
             data.setImpactSpeed(-500.0f);
             getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(gson.toJson(data), MediaType.APPLICATION_JSON));
         }
@@ -123,8 +120,8 @@ public class HeroesResource {
         return client.target(uri).path("api").path("human-being").queryParam(LIMIT_PARAM, Integer.MAX_VALUE);
     }
 
-    private static RemoteEJBInterface lookupRemoteStatelessBean()  {
-        final Hashtable<String,String> jndiProperties = new Hashtable<>();
+    private static TeamServiceI lookupRemoteStatelessBean() {
+        final Hashtable<String, String> jndiProperties = new Hashtable<>();
         jndiProperties.put(javax.naming.Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
         try {
             final javax.naming.Context context = new InitialContext(jndiProperties);
@@ -142,13 +139,13 @@ public class HeroesResource {
             // our EJB deployment, so this is an empty string
             final String distinctName = "";
             // The EJB name which by default is the simple class name of the bean implementation class
-            final String beanName = TeamService.class.getSimpleName();
+            final String beanName = "TeamService";
             // the remote view fully qualified class name
-            final String viewClassName = RemoteEJBInterface.class.getName();
+            final String viewClassName = TeamServiceI.class.getName();
             // let's do the lookup
 
-            return (RemoteEJBInterface) context.lookup("ejb:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName);
-        }catch (NamingException e){
+            return (TeamServiceI) context.lookup("ejb:" + appName + "/" + moduleName + "/" + distinctName + "/" + beanName + "!" + viewClassName);
+        } catch (NamingException e) {
             System.out.println("не получилось (");
             return null;
         }

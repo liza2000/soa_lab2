@@ -1,4 +1,4 @@
-package ru.itmo.soa.app.exception_handler;
+package ru.itmo.soa.app.exceptionHandler;
 
 import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.core.MediaType;
