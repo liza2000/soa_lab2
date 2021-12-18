@@ -1,6 +1,7 @@
 package ru.itmo.soa.app.soap;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.sd.ServiceDiscovery;
 import ru.itmo.soa.entity.HumanBeing;
@@ -43,19 +44,19 @@ public class HeroesSoapService implements HeroesSoapServiceI {
     }
 
     @Override
-    public String findHeroes(boolean realHero) {
+    public List<HumanData> findHeroes(boolean realHero) {
         if (realHero) {
-            return (String)getTarget()
+            return gson.fromJson(getTarget()
                     .queryParam(REAL_HERO_PARAM, true)
-                    .request().accept(MediaType.APPLICATION_JSON).get().getEntity();
+                    .request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(), new TypeToken<List<HumanData>>(){}.getType());
         } else {
-            return (String)getTarget().request().accept(MediaType.APPLICATION_JSON).get().getEntity();
+            return gson.fromJson(getTarget().request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(),  new TypeToken<List<HumanData>>(){}.getType());
         }
     }
 
     @Override
-    public String findHeroesNoParam() {
-        return (String)getTarget().request().accept(MediaType.APPLICATION_JSON).get().getEntity();
+    public List<HumanData> findHeroesNoParam() {
+        return gson.fromJson(getTarget().request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(), new TypeToken<List<HumanData>>(){}.getType());
     }
 
     @Override

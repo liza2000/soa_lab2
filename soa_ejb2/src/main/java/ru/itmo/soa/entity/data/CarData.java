@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 @Data
-@XmlRootElement
+@XmlRootElement(name = "car")
 public class CarData implements Serializable {
     private Long id;
     private String name;

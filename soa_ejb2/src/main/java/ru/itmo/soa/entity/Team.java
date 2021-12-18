@@ -4,11 +4,12 @@ import lombok.Getter;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Set;
 
 @Entity
-@XmlRootElement
+@XmlRootElement(name = "team")
 public class Team implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,5 +23,6 @@ public class Team implements Serializable {
             @JoinColumn(name="HUMAN_ID", referencedColumnName="ID", columnDefinition = "bigint NOT NULL constraint human_being_id_fk references human_being on delete cascade")
     )
     @Getter
+    @XmlTransient
     private Set<HumanBeing> humans;
 }

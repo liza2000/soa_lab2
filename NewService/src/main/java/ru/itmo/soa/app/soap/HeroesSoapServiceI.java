@@ -1,6 +1,7 @@
 package ru.itmo.soa.app.soap;
 
 import ru.itmo.soa.entity.Team;
+import ru.itmo.soa.entity.data.HumanData;
 
 
 import javax.jws.WebMethod;
@@ -15,10 +16,10 @@ interface HeroesSoapServiceI {
     public List<Team> getAllTeams();
 
     @WebMethod
-    public String findHeroes(boolean realHero);
+    public List<HumanData> findHeroes(boolean realHero);
 
     @WebMethod
-    public String findHeroesNoParam();
+    public List<HumanData> findHeroesNoParam();
 
     @WebMethod
     public List<Team> getTeamsByHuman(Long id);

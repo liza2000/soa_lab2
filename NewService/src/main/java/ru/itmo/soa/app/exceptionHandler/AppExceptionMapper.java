@@ -40,6 +40,8 @@ public class AppExceptionMapper
             return handleNumberFormatException((NumberFormatException) e);
         } else if (e instanceof ParseException) {
             return handleParseException((ParseException) e);
+        } else if (e instanceof IllegalArgumentException) {
+            return handleIllegalArgument((IllegalArgumentException) e);
         }
         return handleUnknownException(e);
     }
@@ -50,6 +52,10 @@ public class AppExceptionMapper
 
     private Response handleEntityNotFoundException(EntityNotFoundException e) {
         return Response.status(404).entity(e.getMessage()).build();
+    }
+
+    private Response handleIllegalArgument(IllegalArgumentException e) {
+        return Response.status(400).entity(e.getMessage()).build();
     }
 
     private Response handleNumberFormatException(NumberFormatException e) {

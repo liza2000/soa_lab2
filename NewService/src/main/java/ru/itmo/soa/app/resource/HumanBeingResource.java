@@ -1,8 +1,10 @@
 package ru.itmo.soa.app.resource;
 
 
+import com.google.gson.Gson;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import ru.itmo.soa.app.soap.HumanBeingSoapServiceI;
+import ru.itmo.soa.entity.data.HumanData;
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,10 +30,11 @@ public class HumanBeingResource {
 
     JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
     HumanBeingSoapServiceI soapService;
+    Gson gson = new Gson();
 
     HumanBeingResource(){
         factoryBean.setServiceClass(HumanBeingSoapServiceI.class);
-        factoryBean.setAddress("/soap/service");
+        factoryBean.setAddress("http://localhost:8080/soap/human-being-service");
         soapService = (HumanBeingSoapServiceI) factoryBean.create();
     }
 
@@ -69,7 +72,7 @@ public class HumanBeingResource {
     public Response doPost(@Context HttpServletRequest request) {
         try {
             String requestData = request.getReader().lines().collect(Collectors.joining());
-            return (Response)  soapService.doPost(requestData);
+            return (Response)  soapService.doPost(gson.fromJson(requestData, HumanData.class));
         } catch (IOException e) {
             return Response.serverError().build();
         }
@@ -81,7 +84,7 @@ public class HumanBeingResource {
     public Response doPut(@PathParam("id") Long id, @Context HttpServletRequest request) {
         try {
             String requestData = request.getReader().lines().collect(Collectors.joining());
-            return (Response) soapService.doPut(id,requestData);
+            return Response.ok(gson.toJson(soapService.doPut(id,gson.fromJson(requestData,HumanData.class)))).build();
         } catch (IOException e) {
             return Response.serverError().build();
         }

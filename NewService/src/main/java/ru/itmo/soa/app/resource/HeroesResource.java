@@ -2,6 +2,7 @@ package ru.itmo.soa.app.resource;
 
 import com.google.gson.Gson;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import ru.itmo.soa.app.sd.ServiceDiscovery;
 import ru.itmo.soa.app.soap.HeroesSoapServiceI;
 import ru.itmo.soa.entity.Team;
 import javax.ws.rs.*;
@@ -20,7 +21,7 @@ public class HeroesResource {
 
     HeroesResource(){
         factoryBean.setServiceClass(HeroesSoapServiceI.class);
-        factoryBean.setAddress("/soap/service");
+        factoryBean.setAddress("http://localhost:8080/soap/heroes-service");
         soapService = (HeroesSoapServiceI) factoryBean.create();
     }
 

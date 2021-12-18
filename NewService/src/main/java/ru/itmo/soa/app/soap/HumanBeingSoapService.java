@@ -1,7 +1,11 @@
 package ru.itmo.soa.app.soap;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.sd.ServiceDiscovery;
+import ru.itmo.soa.entity.data.HumanData;
+import ru.itmo.soa.entity.data.PaginationData;
 
 import javax.jws.WebService;
 import javax.persistence.EntityNotFoundException;
@@ -25,30 +29,32 @@ public class HumanBeingSoapService implements HumanBeingSoapServiceI{
     private static final String SOUNDTRACK_NAME_PARAM = "soundtrack-name";
     private static final String WEAPON_TYPE_PARAM = "weapon-type";
 
+    Gson gson = new Gson();
 
-    public String getAll(TreeMap<String, List<String>> map) {
+
+    public PaginationData getAll(TreeMap<String, List<String>> map) {
         WebTarget target = getTarget();
         for (String key : map.keySet())
             for (String param : map.get(key))
                 target = target.queryParam(key, param);
 
-        return (String) target.request().accept(MediaType.APPLICATION_JSON).get().getEntity();
+        return gson.fromJson(target.request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(), PaginationData.class);
     }
 
 
 
-    public Object getOne(Long id) {
+    public HumanData getOne(Long id) {
         WebTarget target = getTarget();
         Response response = target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).get();
         if (response.getStatus()==404)
             throw new EntityNotFoundException("Cannot find human with id " + id);
-        return  response.getEntity();
+        return  gson.fromJson(response.getEntity().toString(),HumanData.class);
     }
 
 
-    public String getSoundtrackNameStarts(String soundtrackName) {
+    public List<HumanData> getSoundtrackNameStarts(String soundtrackName) {
         WebTarget target = getTarget();
-        return (String) target.path(SOUNDTRACK_NAME_STARTS).queryParam(SOUNDTRACK_NAME_PARAM, soundtrackName).request().accept(MediaType.APPLICATION_JSON).get().getEntity();
+        return gson.fromJson( target.path(SOUNDTRACK_NAME_STARTS).queryParam(SOUNDTRACK_NAME_PARAM, soundtrackName).request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(), new TypeToken<List<HumanData>>(){}.getType());
     }
 
     @GET
@@ -60,18 +66,21 @@ public class HumanBeingSoapService implements HumanBeingSoapServiceI{
 
 
 
-    public Object doPost(String requestData) {
+    public HumanData doPost(HumanData requestData) {
         WebTarget target = getTarget();
-            return  target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(requestData, MediaType.APPLICATION_JSON));
+        Response response = target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(gson.toJson(requestData), MediaType.APPLICATION_JSON));
+            return  gson.fromJson(target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(gson.toJson(requestData), MediaType.APPLICATION_JSON)).getEntity().toString(), HumanData.class);
     }
 
 
-    public Object doPut(Long id, String requestData) {
+    public String doPut(Long id, HumanData requestData) {
         WebTarget target = getTarget();
-        Response response = target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(requestData, MediaType.APPLICATION_JSON));
+        Response response = target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(gson.toJson(requestData), MediaType.APPLICATION_JSON));
         if (response.getStatus()==404)
             throw new EntityNotFoundException("Cannot update human with id " + id);
-        return response;
+        if (response.getStatus()==400)
+            throw new IllegalArgumentException(response.getEntity().toString());
+        return response.getEntity().toString();
     }
 
 

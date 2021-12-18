@@ -1,5 +1,8 @@
 package ru.itmo.soa.app.soap;
 
+import ru.itmo.soa.entity.data.HumanData;
+import ru.itmo.soa.entity.data.PaginationData;
+
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import java.util.List;
@@ -9,22 +12,22 @@ import java.util.TreeMap;
 public interface HumanBeingSoapServiceI {
 
     @WebMethod
-    public String getAll(TreeMap<String, List<String>> map);
+    public PaginationData getAll(TreeMap<String, List<String>> map);
     
     @WebMethod
-    public Object getOne( Long id);
+    public HumanData getOne( Long id);
 
     @WebMethod
-    public String getSoundtrackNameStarts( String soundtrackName);
+    public List<HumanData> getSoundtrackNameStarts( String soundtrackName);
     
     @WebMethod
     public Long getWeaponTypeLess( String weaponType);
 
     @WebMethod
-    public Object doPost(String requestData);
+    public Object doPost(HumanData requestData);
 
     @WebMethod
-    public Object doPut( Long id, String requestData);
+    public String doPut( Long id, HumanData requestData);
 
     @WebMethod
     public String doDelete( Long id);
