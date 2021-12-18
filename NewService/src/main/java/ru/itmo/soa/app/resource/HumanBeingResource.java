@@ -1,18 +1,17 @@
 package ru.itmo.soa.app.resource;
 
-import lombok.SneakyThrows;
-import ru.itmo.soa.app.sd.ServiceDiscovery;
+
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import ru.itmo.soa.app.soap.HumanBeingSoapServiceI;
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.IOException;
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Path("/human-being")
@@ -27,47 +26,50 @@ public class HumanBeingResource {
     private static final String SOUNDTRACK_NAME_PARAM = "soundtrack-name";
     private static final String WEAPON_TYPE_PARAM = "weapon-type";
 
+    JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
+    HumanBeingSoapServiceI soapService;
+
+    HumanBeingResource(){
+        factoryBean.setServiceClass(HumanBeingSoapServiceI.class);
+        factoryBean.setAddress("/soap/service");
+        soapService = (HumanBeingSoapServiceI) factoryBean.create();
+    }
+
     @GET
     public Response get(@Context UriInfo ui) {
-        WebTarget target = getTarget();
         MultivaluedMap<String, String> map = ui.getQueryParameters();
-        for (String key : map.keySet()) {
-            for (String param : map.get(key)) {
-                target = target.queryParam(key, param);
-            }
-        }
-        return target.request().accept(MediaType.APPLICATION_JSON).get();
+        TreeMap<String, List<String>> treeMap = new TreeMap<>();
+        for (String key : map.keySet())
+            treeMap.put(key,new ArrayList<>(map.get(key)));
+
+        return Response.ok(soapService.getAll(treeMap)).build();
     }
 
 
     @GET
     @Path("/{id}")
     public Response getOne(@PathParam("id") Long id) {
-        WebTarget target = getTarget();
-        return target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).get();
+        return Response.ok(soapService.getOne(id)).build();
     }
 
     @GET
     @Path(SOUNDTRACK_NAME_STARTS)
     public Response getSoundtrackNameStarts(@QueryParam(SOUNDTRACK_NAME_PARAM) String soundtrackName) {
-        WebTarget target = getTarget();
-        return target.path(SOUNDTRACK_NAME_STARTS).queryParam(SOUNDTRACK_NAME_PARAM, soundtrackName).request().accept(MediaType.APPLICATION_JSON).get();
+        return Response.ok(soapService.getSoundtrackNameStarts(soundtrackName)).build();
     }
 
     @GET
     @Path(WEAPON_TYPE_LESS)
     public Response getWeaponTypeLess(@QueryParam(WEAPON_TYPE_PARAM) String weaponType) {
-        WebTarget target = getTarget();
-        return target.path(WEAPON_TYPE_LESS).queryParam(WEAPON_TYPE_PARAM, weaponType).request().accept(MediaType.APPLICATION_JSON).get();
+        return Response.ok(soapService.getWeaponTypeLess(weaponType)).build();
     }
 
 
     @POST
     public Response doPost(@Context HttpServletRequest request) {
-        WebTarget target = getTarget();
         try {
             String requestData = request.getReader().lines().collect(Collectors.joining());
-            return target.request().accept(MediaType.APPLICATION_JSON).post(Entity.entity(requestData, MediaType.APPLICATION_JSON));
+            return (Response)  soapService.doPost(requestData);
         } catch (IOException e) {
             return Response.serverError().build();
         }
@@ -77,10 +79,9 @@ public class HumanBeingResource {
     @PUT
     @Path("/{id}")
     public Response doPut(@PathParam("id") Long id, @Context HttpServletRequest request) {
-        WebTarget target = getTarget();
         try {
             String requestData = request.getReader().lines().collect(Collectors.joining());
-            return target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(requestData, MediaType.APPLICATION_JSON));
+            return (Response) soapService.doPut(id,requestData);
         } catch (IOException e) {
             return Response.serverError().build();
         }
@@ -89,21 +90,12 @@ public class HumanBeingResource {
     @DELETE
     @Path("/{id}")
     public Response doDelete(@PathParam("id") Long id) {
-        WebTarget target = getTarget();
-        return target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).delete();
+        return Response.ok(soapService.doDelete(id)).build();
     }
 
     @DELETE
     public Response doDelete(@QueryParam(MINUTES_OF_WAITING_PARAM) Double minutesOfWaiting) {
-        WebTarget target = getTarget();
-        return target.queryParam(MINUTES_OF_WAITING_PARAM, minutesOfWaiting).request().accept(MediaType.APPLICATION_JSON).delete();
+        return Response.ok(soapService.doDelete(minutesOfWaiting)).build();
     }
 
-
-    @SneakyThrows
-    private WebTarget getTarget() {
-        URI uri = UriBuilder.fromUri(ServiceDiscovery.getUriFromConsul()).build();
-        Client client = ClientBuilder.newClient();
-        return client.target(uri).path("api").path("human-being");
-    }
 }

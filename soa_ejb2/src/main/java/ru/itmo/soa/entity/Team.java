@@ -3,10 +3,12 @@ package ru.itmo.soa.entity;
 import lombok.Getter;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Set;
 
 @Entity
+@XmlRootElement
 public class Team implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
