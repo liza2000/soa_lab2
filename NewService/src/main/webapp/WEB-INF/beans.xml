@@ -7,8 +7,8 @@
         http://java.sun.com/xml/ns/javaee/beans_1_0.xsd
         http://cxf.apache.org/jaxws
        http://cxf.apache.org/schemas/jaxws.xsd">
-    <jaxws:endpoint name="human-being-service" address="/human-being-service"
+    <jaxws:endpoint address="/human-being-service"
                     implementor="ru.itmo.soa.app.soap.HumanBeingSoapService"/>
-    <jaxws:endpoint name="heroes-service" address="/heroes-service"
+    <jaxws:endpoint address="/heroes-service"
                     implementor="ru.itmo.soa.app.soap.HeroesSoapService"/>
 </beans>

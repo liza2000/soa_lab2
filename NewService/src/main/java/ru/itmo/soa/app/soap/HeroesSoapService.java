@@ -1,12 +1,12 @@
 package ru.itmo.soa.app.soap;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
 import ru.itmo.soa.app.sd.ServiceDiscovery;
 import ru.itmo.soa.entity.HumanBeing;
 import ru.itmo.soa.entity.Team;
 import ru.itmo.soa.entity.data.HumanData;
+import ru.itmo.soa.entity.data.PaginationData;
 import ru.itmo.soa.service.TeamService;
 import ru.itmo.soa.service.TeamServiceI;
 
@@ -25,8 +25,7 @@ import java.net.URI;
 import java.util.Hashtable;
 import java.util.List;
 
-@WebService(endpointInterface = "ru.itmo.soa.app.soap.HeroesSoapServiceI",
-        serviceName = "HeroesSoap")
+@WebService(endpointInterface = "ru.itmo.soa.app.soap.HeroesSoapServiceI", serviceName = "heroes-soap")
 public class HeroesSoapService implements HeroesSoapServiceI {
 
     private static final String REAL_HERO_PARAM = "real-hero";
@@ -34,47 +33,45 @@ public class HeroesSoapService implements HeroesSoapServiceI {
     private TeamServiceI teamService = lookupRemoteStatelessBean();
     private final Gson gson = new Gson();
 
+    public HeroesSoapService() {
+        System.out.println("HeroesSoapService created!");
+    }
+
     public void setTeamService(TeamService teamService) {
         this.teamService = teamService;
     }
 
-    @Override
-    public List<Team> getAllTeams() {
-        return teamService.getTeams();
+    public Team[] getAllTeams() {
+        System.out.println();
+        return teamService.getTeams().toArray(new Team[0]);
     }
 
-    @Override
-    public List<HumanData> findHeroes(boolean realHero) {
+    public PaginationData findHeroes(boolean realHero) {
         if (realHero) {
-            return gson.fromJson(getTarget()
+            return getTarget()
                     .queryParam(REAL_HERO_PARAM, true)
-                    .request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(), new TypeToken<List<HumanData>>(){}.getType());
+                    .request().accept(MediaType.APPLICATION_JSON).get(PaginationData.class);
         } else {
-            return gson.fromJson(getTarget().request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(),  new TypeToken<List<HumanData>>(){}.getType());
+            return getTarget().request().accept(MediaType.APPLICATION_JSON).get(PaginationData.class);
         }
     }
 
-    @Override
-    public List<HumanData> findHeroesNoParam() {
-        return gson.fromJson(getTarget().request().accept(MediaType.APPLICATION_JSON).get().getEntity().toString(), new TypeToken<List<HumanData>>(){}.getType());
+    public PaginationData findHeroesNoParam() {
+        return getTarget().request().accept(MediaType.APPLICATION_JSON).get(PaginationData.class);
     }
 
-    @Override
     public Team getTeam(Long id) {
         return teamService.getTeam(id);
     }
 
-    @Override
-    public List<Team> getTeamsByHuman(Long id) {
-        return teamService.teamsByHuman(id);
+    public Team[] getTeamsByHuman(Long id) {
+        return teamService.teamsByHuman(id).toArray(new Team[0]);
     }
 
-    @Override
     public Team createTeam(Team data) {
-       return teamService.createTeam(data);
+        return teamService.createTeam(data);
     }
 
-    @Override
     public int makeDepressive(Long id) {
         Team team = teamService.getTeam(id);
         for (HumanBeing human : team.getHumans()) {
@@ -82,26 +79,23 @@ public class HeroesSoapService implements HeroesSoapServiceI {
             if (response.getStatus() != 200)
                 return -1;
 
-            HumanData data = (HumanData) response.getEntity();
+            HumanData data = response.readEntity(HumanData.class);
             data.setImpactSpeed(-500.0f);
             getTarget().path(String.format("%s", human.getId())).request().accept(MediaType.APPLICATION_JSON).put(Entity.entity(gson.toJson(data), MediaType.APPLICATION_JSON));
         }
         return 0;
     }
 
-    @Override
     public void addHumanToTeam(Long teamId, Long humanId) {
         teamService.addHumanToTeam(teamId, humanId);
     }
 
-    @Override
     public void deleteTeam(Long id) {
         teamService.deleteTeam(id);
     }
 
-    @Override
     public void deleteHumanFromTeam(Long id, Long humanId) {
-        teamService.removeHumanFromTeam(id,humanId);
+        teamService.removeHumanFromTeam(id, humanId);
     }
 
     @SneakyThrows

@@ -12,26 +12,26 @@ import java.util.TreeMap;
 public interface HumanBeingSoapServiceI {
 
     @WebMethod
-    public PaginationData getAll(TreeMap<String, List<String>> map);
-    
-    @WebMethod
-    public HumanData getOne( Long id);
+    PaginationData getAll(TreeMap<String, String[]> map);
 
     @WebMethod
-    public List<HumanData> getSoundtrackNameStarts( String soundtrackName);
-    
-    @WebMethod
-    public Long getWeaponTypeLess( String weaponType);
+    HumanData getOne(Long id);
 
     @WebMethod
-    public Object doPost(HumanData requestData);
+    HumanData[] getSoundtrackNameStarts(String soundtrackName);
 
     @WebMethod
-    public String doPut( Long id, HumanData requestData);
+    Long getWeaponTypeLess(String weaponType);
 
     @WebMethod
-    public String doDelete( Long id);
+    Object doPost(HumanData requestData);
 
     @WebMethod
-    public String doDelete( Double minutesOfWaiting);
+    String doPut(Long id, HumanData requestData);
+
+    @WebMethod
+    String doDelete(Long id);
+
+    @WebMethod
+    String doDeleteByMinutes(Double minutesOfWaiting);
 }

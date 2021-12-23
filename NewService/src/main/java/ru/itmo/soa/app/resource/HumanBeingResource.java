@@ -1,18 +1,15 @@
 package ru.itmo.soa.app.resource;
 
-
 import com.google.gson.Gson;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import ru.itmo.soa.app.soap.HumanBeingSoapServiceI;
 import ru.itmo.soa.entity.data.HumanData;
-
-
+import ru.itmo.soa.entity.data.PaginationData;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -28,43 +25,41 @@ public class HumanBeingResource {
     private static final String SOUNDTRACK_NAME_PARAM = "soundtrack-name";
     private static final String WEAPON_TYPE_PARAM = "weapon-type";
 
-    JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
-    HumanBeingSoapServiceI soapService;
-    Gson gson = new Gson();
+    @Inject
+    private HumanBeingSoapServiceI soapService;
+    private final Gson gson = new Gson();
 
-    HumanBeingResource(){
-        factoryBean.setServiceClass(HumanBeingSoapServiceI.class);
-        factoryBean.setAddress("http://localhost:8080/soap/human-being-service");
-        soapService = (HumanBeingSoapServiceI) factoryBean.create();
-    }
+    public HumanBeingResource() {}
 
     @GET
     public Response get(@Context UriInfo ui) {
         MultivaluedMap<String, String> map = ui.getQueryParameters();
-        TreeMap<String, List<String>> treeMap = new TreeMap<>();
-        for (String key : map.keySet())
-            treeMap.put(key,new ArrayList<>(map.get(key)));
-
-        return Response.ok(soapService.getAll(treeMap)).build();
+        TreeMap<String, String[]> treeMap = new TreeMap<>();
+        for (String key : map.keySet()) {
+            treeMap.put(key, new ArrayList<>(map.get(key)).toArray(new String[0]));
+        }
+        PaginationData all = soapService.getAll(treeMap);
+        String json = gson.toJson(all);
+        return Response.ok(json).build();
     }
 
 
     @GET
     @Path("/{id}")
     public Response getOne(@PathParam("id") Long id) {
-        return Response.ok(soapService.getOne(id)).build();
+        return Response.ok(gson.toJson(soapService.getOne(id))).build();
     }
 
     @GET
     @Path(SOUNDTRACK_NAME_STARTS)
     public Response getSoundtrackNameStarts(@QueryParam(SOUNDTRACK_NAME_PARAM) String soundtrackName) {
-        return Response.ok(soapService.getSoundtrackNameStarts(soundtrackName)).build();
+        return Response.ok(gson.toJson(soapService.getSoundtrackNameStarts(soundtrackName))).build();
     }
 
     @GET
     @Path(WEAPON_TYPE_LESS)
     public Response getWeaponTypeLess(@QueryParam(WEAPON_TYPE_PARAM) String weaponType) {
-        return Response.ok(soapService.getWeaponTypeLess(weaponType)).build();
+        return Response.ok(gson.toJson(soapService.getWeaponTypeLess(weaponType))).build();
     }
 
 
@@ -72,7 +67,7 @@ public class HumanBeingResource {
     public Response doPost(@Context HttpServletRequest request) {
         try {
             String requestData = request.getReader().lines().collect(Collectors.joining());
-            return (Response)  soapService.doPost(gson.fromJson(requestData, HumanData.class));
+            return Response.ok(gson.toJson(soapService.doPost(gson.fromJson(requestData, HumanData.class)))).build();
         } catch (IOException e) {
             return Response.serverError().build();
         }
@@ -84,7 +79,7 @@ public class HumanBeingResource {
     public Response doPut(@PathParam("id") Long id, @Context HttpServletRequest request) {
         try {
             String requestData = request.getReader().lines().collect(Collectors.joining());
-            return Response.ok(gson.toJson(soapService.doPut(id,gson.fromJson(requestData,HumanData.class)))).build();
+            return Response.ok(gson.toJson(soapService.doPut(id, gson.fromJson(requestData, HumanData.class)))).build();
         } catch (IOException e) {
             return Response.serverError().build();
         }
@@ -93,12 +88,12 @@ public class HumanBeingResource {
     @DELETE
     @Path("/{id}")
     public Response doDelete(@PathParam("id") Long id) {
-        return Response.ok(soapService.doDelete(id)).build();
+        return Response.ok(gson.toJson(soapService.doDelete(id))).build();
     }
 
     @DELETE
     public Response doDelete(@QueryParam(MINUTES_OF_WAITING_PARAM) Double minutesOfWaiting) {
-        return Response.ok(soapService.doDelete(minutesOfWaiting)).build();
+        return Response.ok(gson.toJson(soapService.doDeleteByMinutes(minutesOfWaiting))).build();
     }
 
 }

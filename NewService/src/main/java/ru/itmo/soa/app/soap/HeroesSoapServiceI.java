@@ -2,6 +2,7 @@ package ru.itmo.soa.app.soap;
 
 import ru.itmo.soa.entity.Team;
 import ru.itmo.soa.entity.data.HumanData;
+import ru.itmo.soa.entity.data.PaginationData;
 
 
 import javax.jws.WebMethod;
@@ -9,37 +10,36 @@ import javax.jws.WebService;
 import java.util.List;
 
 @WebService
-public
-interface HeroesSoapServiceI {
+public interface HeroesSoapServiceI {
 
     @WebMethod
-    public List<Team> getAllTeams();
+    Team[] getAllTeams();
 
     @WebMethod
-    public List<HumanData> findHeroes(boolean realHero);
+    PaginationData findHeroes(boolean realHero);
 
     @WebMethod
-    public List<HumanData> findHeroesNoParam();
+    PaginationData findHeroesNoParam();
 
     @WebMethod
-    public List<Team> getTeamsByHuman(Long id);
+    Team[] getTeamsByHuman(Long id);
 
     @WebMethod
-    public Team createTeam(Team data);
+    Team createTeam(Team data);
 
     @WebMethod
-    public int makeDepressive(Long id);
+    int makeDepressive(Long id);
 
     @WebMethod
-    public void addHumanToTeam(Long teamId, Long humanId);
+    void addHumanToTeam(Long teamId, Long humanId);
 
     @WebMethod
-    public void deleteTeam(Long id);
+    void deleteTeam(Long id);
 
     @WebMethod
-    public Team getTeam(Long id);
+    Team getTeam(Long id);
 
     @WebMethod
-    public void deleteHumanFromTeam(Long id, Long humanId);
+    void deleteHumanFromTeam(Long id, Long humanId);
 
 }
