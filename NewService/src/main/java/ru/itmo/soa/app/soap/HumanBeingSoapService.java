@@ -40,7 +40,6 @@ public class HumanBeingSoapService implements HumanBeingSoapServiceI {
         return accept.get(PaginationData.class);
     }
 
-
     public HumanData getOne(Long id) {
         WebTarget target = getTarget();
         Response response = target.path(id.toString()).request().accept(MediaType.APPLICATION_JSON).get();
@@ -60,7 +59,8 @@ public class HumanBeingSoapService implements HumanBeingSoapServiceI {
     @Path(WEAPON_TYPE_LESS)
     public Long getWeaponTypeLess(@QueryParam(WEAPON_TYPE_PARAM) String weaponType) {
         WebTarget target = getTarget();
-        return target.path(WEAPON_TYPE_LESS).queryParam(WEAPON_TYPE_PARAM, weaponType).request().accept(MediaType.APPLICATION_JSON).get().readEntity(Long.class);
+        Invocation.Builder request = target.path(WEAPON_TYPE_LESS).queryParam(WEAPON_TYPE_PARAM, weaponType).request();
+        return request.accept(MediaType.TEXT_PLAIN).get().readEntity(Long.class);
     }
 
 
@@ -92,9 +92,8 @@ public class HumanBeingSoapService implements HumanBeingSoapServiceI {
 
     public String doDeleteByMinutes(Double minutesOfWaiting) {
         WebTarget target = getTarget();
-        return (String) target.queryParam(MINUTES_OF_WAITING_PARAM, minutesOfWaiting).request().accept(MediaType.APPLICATION_JSON).delete().getEntity();
+        return target.queryParam(MINUTES_OF_WAITING_PARAM, minutesOfWaiting).request().accept(MediaType.APPLICATION_JSON).delete().readEntity(String.class);
     }
-
 
     @SneakyThrows
     private WebTarget getTarget() {

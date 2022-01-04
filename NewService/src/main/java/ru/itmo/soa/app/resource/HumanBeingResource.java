@@ -59,7 +59,7 @@ public class HumanBeingResource {
     @GET
     @Path(WEAPON_TYPE_LESS)
     public Response getWeaponTypeLess(@QueryParam(WEAPON_TYPE_PARAM) String weaponType) {
-        return Response.ok(gson.toJson(soapService.getWeaponTypeLess(weaponType))).build();
+        return Response.ok(soapService.getWeaponTypeLess(weaponType)).build();
     }
 
 

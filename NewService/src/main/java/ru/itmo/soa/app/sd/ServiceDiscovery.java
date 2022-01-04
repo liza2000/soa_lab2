@@ -34,6 +34,7 @@ public class ServiceDiscovery {
         }
         System.err.println("Service 2 (Payara) not available from consul - using fallback jndi resource");
         InitialContext cont = new InitialContext();
-        return (String) cont.lookup("java:/service2_uri");
+//        return (String) cont.lookup("java:/service2_uri");
+        return "https://localhost:8081";
     }
 }
