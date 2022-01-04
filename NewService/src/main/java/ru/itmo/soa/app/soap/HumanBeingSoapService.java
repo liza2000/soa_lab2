@@ -6,13 +6,15 @@ import ru.itmo.soa.app.sd.ServiceDiscovery;
 import ru.itmo.soa.entity.data.HumanData;
 import ru.itmo.soa.entity.data.PaginationData;
 
-import javax.ejb.Stateless;
 import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
 import javax.persistence.EntityNotFoundException;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.TreeMap;
 

@@ -71,7 +71,6 @@ public class HumanBeingResource {
         } catch (IOException e) {
             return Response.serverError().build();
         }
-
     }
 
     @PUT
